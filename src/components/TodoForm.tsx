@@ -7,27 +7,51 @@ interface TodoFormProps {
 
 const TodoForm: React.FC<TodoFormProps> = ({ refreshTodos }) => {
   const [name, setName] = useState("");
+  const [isValid, setIsValid] = useState(true); // Track validity
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    if (!name.trim()) {
+      setIsValid(false);
+      return;
+    }
+
     try {
       await addTodo({ name, isComplete: false });
-      setName(""); // Wyczyść pole
-      refreshTodos(); // Odśwież listę
+      setName("");
+      setIsValid(true);
+      refreshTodos();
     } catch (error) {
-      console.error("Błąd podczas dodawania zadania: ", error);
+      console.error("Error adding todo: ", error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form
+      className="row g-3 needs-validation container justify-content-center pt-4 d-flex"
+      noValidate
+      onSubmit={handleSubmit}
+    >
+      <label htmlFor="ValidationCustom01" className="form-label">
+        Add your task here:
+      </label>
       <input
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Wpisz zadanie"
+        className={`form-control ${!isValid ? "is-invalid" : ""}`}
+        id="validationCustom01"
+        placeholder="Desctiption"
+        required
       />
-      <button type="submit">Dodaj</button>
+      {!isValid && (
+        <div className="invalid-feedback">Input field cannot be empty</div>
+      )}
+
+      <button type="submit" className="btn btn-primary col-sm-1">
+        Add
+      </button>
     </form>
   );
 };

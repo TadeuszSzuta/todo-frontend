@@ -3,13 +3,14 @@ export interface Todo {
   name: string;
   isComplete: boolean;
 }
+const backend_PORT = 7203;
 
-const API_URL = "http://localhost:7203/todoitems";
+const API_URL = `http://localhost:${backend_PORT}/todoitems`;
 
 export const getTodos = async (): Promise<Todo[]> => {
   const response = await fetch(API_URL);
   if (!response.ok) {
-    throw new Error("Nie udało się pobrać listy zadań");
+    throw new Error("Failed at downloading todo list");
   }
   return response.json();
 };
@@ -21,24 +22,24 @@ export const addTodo = async (todo: Partial<Todo>): Promise<void> => {
     body: JSON.stringify(todo),
   });
   if (!response.ok) {
-    throw new Error("Nie udało się dodać zadania");
+    throw new Error("Failed to add a new task");
   }
 };
 
-export const updateTodo = async (todo: Todo): Promise<void> => {
-  const response = await fetch(`${API_URL}/${todo.id}`, {
+export const updateTodo = async (todo: Todo) => {
+  const response = await fetch(`/api/todos/${todo.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(todo),
   });
-  if (!response.ok) {
-    throw new Error("Nie udało się zaktualizować zadania");
-  }
+  return response.ok;
 };
 
 export const deleteTodo = async (id: number): Promise<void> => {
   const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
   if (!response.ok) {
-    throw new Error("Nie udało się usunąć zadania");
+    throw new Error("Failed to delete a task");
   }
 };
+
+export default backend_PORT;

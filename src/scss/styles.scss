@@ -1,0 +1,12 @@
+// Import all of Bootstrap's CSS
+@import "bootstrap/scss/bootstrap";
+
+.uncompleted {
+  background-color: #fee2e2;
+  border-color: #18181b;
+}
+
+.completed {
+  background-color: #dcfce7;
+  border-color: #18181b;
+}
