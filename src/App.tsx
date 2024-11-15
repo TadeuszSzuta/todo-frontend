@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getTodos, Todo } from "./api/todoApi";
 import TodoList from "./components/TodoList";
 import TodoForm from "./components/TodoForm";
@@ -52,20 +52,6 @@ const TodoApp = () => {
 
   return (
     <div>
-      <svg
-        height="100"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="-11.5 -10.23174 23 20.46348"
-      >
-        <title>React Logo</title>
-        <circle cx="0" cy="0" r="2.05" fill="#61dafb" />
-        <g stroke="#61dafb" stroke-width="1" fill="none">
-          <ellipse rx="11" ry="4.2" />
-          <ellipse rx="11" ry="4.2" transform="rotate(60)" />
-          <ellipse rx="11" ry="4.2" transform="rotate(120)" />
-        </g>
-      </svg>
-
       <h1>Todo List</h1>
       <TodoList todos={todos} />
       <TodoForm refreshTodos={fetchTodos} />
