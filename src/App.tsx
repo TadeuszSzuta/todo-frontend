@@ -1,35 +1,76 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useState } from "react";
+import { getTodos, Todo } from "./api/todoApi";
+import TodoList from "./components/TodoList";
+import TodoForm from "./components/TodoForm";
+import { HubConnectionBuilder } from "@microsoft/signalr";
 
-function App() {
-  const [count, setCount] = useState(0)
+const TodoApp = () => {
+  const [todos, setTodos] = useState<Todo[]>([]); // Typuj stan
+  const [connection, setConnection] = useState<any>(null); // Dodano typowanie dla połączenia
+
+  // Konfiguracja SignalR
+  useEffect(() => {
+    const newConnection = new HubConnectionBuilder()
+      .withUrl("http://localhost:7203/todoHub", { withCredentials: false }) // URL SignalR
+      .withAutomaticReconnect()
+      .build();
+
+    setConnection(newConnection);
+  }, []);
+
+  // Start SignalR i nasłuchuj aktualizacji
+  useEffect(() => {
+    if (connection) {
+      connection
+        .start()
+        .then(() => {
+          console.log("Połączono z SignalR!");
+
+          // Nasłuchiwanie na zdarzenie aktualizacji
+          connection.on("TodosUpdated", () => {
+            console.log("Lista todo została zaktualizowana!");
+            fetchTodos(); // Pobierz aktualne dane
+          });
+        })
+        .catch((error: unknown) => console.error("SignalR Error: ", error));
+    }
+  }, [connection]);
+
+  // Pobierz listę todos
+  const fetchTodos = async () => {
+    try {
+      const data = await getTodos(); // Użyj warstwy API
+      setTodos(data);
+    } catch (error) {
+      console.error("Błąd podczas pobierania danych: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div>
+      <svg
+        height="100"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="-11.5 -10.23174 23 20.46348"
+      >
+        <title>React Logo</title>
+        <circle cx="0" cy="0" r="2.05" fill="#61dafb" />
+        <g stroke="#61dafb" stroke-width="1" fill="none">
+          <ellipse rx="11" ry="4.2" />
+          <ellipse rx="11" ry="4.2" transform="rotate(60)" />
+          <ellipse rx="11" ry="4.2" transform="rotate(120)" />
+        </g>
+      </svg>
 
-export default App
+      <h1>Todo List</h1>
+      <TodoList todos={todos} />
+      <TodoForm refreshTodos={fetchTodos} />
+    </div>
+  );
+};
+
+export default TodoApp;
